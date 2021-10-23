@@ -35,6 +35,23 @@ async def send_message(req: dict):
         raise HTTPError("Send message error")
 
 
+@app.get('/getChatId')
+async def get_chat_id():
+    try:
+        API_URL = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
+        async with httpx.AsyncClient() as client:
+            request = await client.get(API_URL)
+            response = request.json()
+            result_length = len(response["result"])
+            latest_message = response["result"][result_length - 1]
+            sender_chat_id = latest_message["message"]["from"]["id"]
+            return sender_chat_id
+
+    except Exception as e:
+        print(e)
+        raise HTTPError("Send message error")
+
+
 @app.get('/getFPLUpdates')
 async def get_fpl_updates():
     try:
