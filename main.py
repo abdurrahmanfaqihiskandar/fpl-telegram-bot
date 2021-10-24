@@ -30,7 +30,7 @@ async def send_message(req: dict):
 
             await client.post(send_message_url, json=tg_message)
             return f"Message sent: {text}"
-        
+
     except Exception as e:
         print(e)
         raise HTTPError("Send message error")
