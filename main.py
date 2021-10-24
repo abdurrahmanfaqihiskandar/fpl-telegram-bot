@@ -7,26 +7,20 @@ from decouple import config
 app = FastAPI()
 
 TOKEN = config('TOKEN')
-FAQIH_CHAT_ID = config('FAQIH_CHAT_ID')
-SANDEEP_CHAT_ID = config('SANDEEP_CHAT_ID')
 
 
 @app.post('/sendMessage')
 async def send_message(req: dict):
     try:
+        chat_id = req["chat_id"]
         text = req["message"]
-        tg_faqih_message = {
-            "chat_id": FAQIH_CHAT_ID,
-            "text": text
-        }
-        tg_sandeep_message = {
-            "chat_id": SANDEEP_CHAT_ID,
+        tg_message = {
+            "chat_id": chat_id,
             "text": text
         }
         API_URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         async with httpx.AsyncClient() as client:
-            await client.post(API_URL, json=tg_faqih_message)
-            # await client.post(API_URL, json=tg_sandeep_message)
+            await client.post(API_URL, json=tg_message)
 
         res = f"Message '{text}' sent"
         return res
