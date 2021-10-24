@@ -12,18 +12,25 @@ TOKEN = config('TOKEN')
 @app.post('/sendMessage')
 async def send_message(req: dict):
     try:
-        chat_id = req["chat_id"]
         text = req["message"]
-        tg_message = {
-            "chat_id": chat_id,
-            "text": text
-        }
-        API_URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        send_message_url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        get_updates_url = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
         async with httpx.AsyncClient() as client:
-            await client.post(API_URL, json=tg_message)
 
-        res = f"Message '{text}' sent"
-        return res
+            request = await client.get(get_updates_url)
+            response = request.json()
+
+            result_length = len(response["result"])
+            latest_message = response["result"][result_length - 1]
+            sender_chat_id = latest_message["message"]["from"]["id"]
+            tg_message = {
+                "chat_id": sender_chat_id,
+                "text": text
+            }
+
+            await client.post(send_message_url, json=tg_message)
+            return f"Message sent: {text}"
+        
     except Exception as e:
         print(e)
         raise HTTPError("Send message error")
